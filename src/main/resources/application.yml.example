@@ -1,0 +1,35 @@
+# application-local.yml
+server:
+  port: 8080
+
+spring:
+  application:
+    name: airmoment
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/airmoment
+    username: root
+    password: your-local-password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+
+logging:
+  level:
+    root: info
+    org:
+      hibernate:
+        SQL: debug
+        type:
+          descriptor:
+            sql:
+              BasicBinder:
+                TRACE

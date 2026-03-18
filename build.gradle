@@ -1,17 +1,52 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '3.2.4'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'com.github.airmoment'
 version = '1.0-SNAPSHOT'
+description = "airmoment"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+
+    // API REST
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // mysql
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    //lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.1"
+    }
 }
 
 test {
