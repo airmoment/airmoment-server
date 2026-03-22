@@ -1,8 +1,5 @@
 package com.github.airmoment.global.response.dto;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-
 import com.github.airmoment.global.response.base.BaseCode;
 
 public record SuccessResponse<T>(

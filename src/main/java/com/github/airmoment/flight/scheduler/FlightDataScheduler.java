@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.github.airmoment.flight.domain.FlightOffer;
 import com.github.airmoment.flight.domain.FlightSearch;
 import com.github.airmoment.flight.service.FlightDataService;
 import com.github.airmoment.global.client.serpapi.SerpApiClient;
