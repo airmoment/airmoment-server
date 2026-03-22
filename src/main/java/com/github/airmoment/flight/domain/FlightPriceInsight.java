@@ -23,16 +23,16 @@ public class FlightPriceInsight {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer lowestPrice;
 
-	@Column(nullable = false, length = 20)
+	@Column(nullable = true, length = 20)
 	private String priceLevel;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer typicalPriceMin;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private Integer typicalPriceMax;
 
 	@OneToOne(fetch = FetchType.LAZY)

@@ -49,13 +49,13 @@ public class FlightSegment {
 	@Column(nullable = false)
 	private Integer duration;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String airline;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String flightNumber;
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String travelClass;
 
 	@Column(nullable = true)
