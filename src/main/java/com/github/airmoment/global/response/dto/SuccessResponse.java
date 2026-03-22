@@ -1,5 +1,8 @@
 package com.github.airmoment.global.response.dto;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
 import com.github.airmoment.global.response.base.BaseCode;
 
 public record SuccessResponse<T>(
@@ -23,5 +26,9 @@ public record SuccessResponse<T>(
 	public static <T> SuccessResponse<T> of(BaseCode basecode, String message,
 		T data) { //반환 데이터 있음, 메시지 커스텀
 		return new SuccessResponse<>(basecode.getHttpStatus().value(), message, data);
+	}
+
+	public static <T> SuccessResponse<T> of(int httpStatusCode, String message) {
+		return new SuccessResponse<>(httpStatusCode, message, null);
 	}
 }
