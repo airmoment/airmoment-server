@@ -41,22 +41,20 @@ public class FlightDataService {
 	private final FlightPriceInsightRepository flightPriceInsightRepository;
 	private final FlightSegmentRepository flightSegmentRepository;
 
-	public FlightSearch saveFlightSearch(String departureAirportCode, String arrivalAirportCode, LocalDate departureDate, LocalDate arrivalDate, String departureToken) {
+	public FlightSearch saveFlightSearch(String departureAirportCode, String arrivalAirportCode, LocalDate departureDate) {
 		FlightSearch flightSearch = FlightSearch.of(
 			departureAirportCode,
 			arrivalAirportCode,
-			departureDate,
-			arrivalDate,
-			departureToken
+			departureDate
 		);
 
 		return flightSearchRepository.save(flightSearch);
 	}
 
-	public void saveFlights(FlightSearch flightSearch, FlightSearchResponse response) {
+	public void saveFlights(FlightSearch flightSearch, FlightSearchResponse response, FlightDirection direction) {
 		// FlightOffer, FlightSegment, FlightLayover 저장
-		saveFlightOffers(flightSearch, response.bestFlights(), true);
-		saveFlightOffers(flightSearch, response.otherFlights(), false);
+		saveFlightOffers(flightSearch, response.bestFlights(), true, direction);
+		saveFlightOffers(flightSearch, response.otherFlights(), false, direction);
 
 		// PriceInsight 저장
 		if (response.priceInsights() != null) {
@@ -65,13 +63,8 @@ public class FlightDataService {
 	}
 
 	private void saveFlightOffers(FlightSearch flightSearch,
-		List<FlightOfferDto> offerDtos, boolean isBest) {
+		List<FlightOfferDto> offerDtos, boolean isBest, FlightDirection direction) {
 		if (offerDtos == null || offerDtos.isEmpty()) return;
-
-		// departure_token 유무로 direction 판단
-		// inbound 2차 호출 응답은 departure_token이 없음
-		boolean isInbound = flightSearch.getDepartureToken() != null;
-		FlightDirection direction = isInbound ? FlightDirection.INBOUND : FlightDirection.OUTBOUND;
 
 		for (FlightOfferDto offerDto : offerDtos) {
 

@@ -8,9 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.github.airmoment.flight.domain.FlightSearch;
+import com.github.airmoment.flight.domain.enums.FlightDirection;
 import com.github.airmoment.flight.service.FlightDataService;
 import com.github.airmoment.global.client.serpapi.SerpApiClient;
-import com.github.airmoment.global.client.serpapi.dto.FlightOfferDto;
 import com.github.airmoment.global.client.serpapi.dto.FlightSearchResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -32,9 +32,9 @@ public class FlightDataScheduler {
 		log.info("항공편 데이터 수집 시작: {}", LocalDateTime.now());
 
 		try {
-			LocalDate dynamicDeparture = LocalDate.now().plusMonths(1);
-			LocalDate dynamicReturn = dynamicDeparture.plusDays(6);
-			collectForPeriod(dynamicDeparture, dynamicReturn);
+			LocalDate dynamicOutboundDate = LocalDate.now().plusMonths(1);
+			LocalDate dynamicInboundDate = dynamicOutboundDate.plusDays(6);
+			collectForPeriod(dynamicOutboundDate, dynamicInboundDate);
 
 			collectForPeriod(LocalDate.of(2026, 7, 13), LocalDate.of(2026, 7, 19));
 
@@ -44,40 +44,23 @@ public class FlightDataScheduler {
 		}
 	}
 
-	private void collectForPeriod(LocalDate departureDate, LocalDate returnDate) {
+	private void collectForPeriod(LocalDate dynamicOutboundDate, LocalDate dynamicInboundDate) {
 		for (String targetAirport : TARGET_AIRPORTS) {
-			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, departureDate, returnDate, null);
-			FlightSearchResponse outboundResponse = serpApiClient.fetchOutBoundFlights(
-				ORIGIN, targetAirport,
-				departureDate.toString(),
-				returnDate.toString()
+			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport,
+				dynamicOutboundDate);
+			FlightSearchResponse outboundResponse = serpApiClient.fetchFlights(
+				ORIGIN, targetAirport, dynamicOutboundDate.toString()
 			);
 			log.info("outboundResponse: {}", outboundResponse);
-			flightDataService.saveFlights(outboundFlightSearch, outboundResponse);
+			flightDataService.saveFlights(outboundFlightSearch, outboundResponse, FlightDirection.OUTBOUND);
 
-			List<String> departureTokens = extractTop3DepartureTokens(outboundResponse);
-			for (String departureToken : departureTokens) {
-				FlightSearch inboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, departureDate, returnDate, departureToken);
-				FlightSearchResponse inboundResponse = serpApiClient.fetchInBoundFlights(
-					departureToken,
-					ORIGIN, targetAirport,
-					departureDate.toString(),
-					returnDate.toString()
-				);
-				log.info("inResponse: {}", inboundResponse);
-				flightDataService.saveFlights(inboundFlightSearch, inboundResponse);
-			}
+			FlightSearch inboundFlightSearch = flightDataService.saveFlightSearch(targetAirport, ORIGIN,
+				dynamicInboundDate);
+			FlightSearchResponse inboundResponse = serpApiClient.fetchFlights(
+				targetAirport, ORIGIN, dynamicInboundDate.toString()
+			);
+			log.info("inboundResponse: {}", inboundResponse);
+			flightDataService.saveFlights(inboundFlightSearch, inboundResponse, FlightDirection.INBOUND);
 		}
-	}
-
-	private List<String> extractTop3DepartureTokens(FlightSearchResponse response) {
-		List<FlightOfferDto> flights = response.bestFlights() == null ? response.otherFlights() : response.bestFlights();
-
-		return flights
-			.stream()
-			.limit(3)
-			.map(FlightOfferDto::departureToken)
-			.filter(token -> token != null && !token.isBlank())
-			.toList();
 	}
 }
