@@ -54,6 +54,10 @@ jobs:
           docker push ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
 
       - name: EC2 배포
+        env:
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -70,7 +74,8 @@ jobs:
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
               docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
             cd /home/ubuntu/airmoment-server
-            git pull origin develop
+            git fetch origin develop
+            git reset --hard origin/develop
             docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
             docker-compose -f docker-compose-dev.yml down
             docker-compose -f docker-compose-dev.yml up -d
