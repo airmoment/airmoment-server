@@ -5,15 +5,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.github.airmoment.global.client.discord.DiscordProperties;
-import com.github.airmoment.global.client.google.GoogleSheetsProperties;
 import com.github.airmoment.global.client.serpapi.SerpApiProperties;
 
 @EnableScheduling
 @EnableConfigurationProperties({
-	SerpApiProperties.class,
-	DiscordProperties.class,
-	GoogleSheetsProperties.class
+	SerpApiProperties.class
 })
 @SpringBootApplication
 public class AirmomentApplication {
