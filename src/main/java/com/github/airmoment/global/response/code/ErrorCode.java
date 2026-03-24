@@ -19,10 +19,10 @@ public enum ErrorCode implements BaseCode {
 	TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "요청 값 타입이 올바르지 않습니다."),
 	INVALID_REQUEST_BODY(HttpStatus.BAD_REQUEST, "요청 본문이 올바르지 않습니다."),
 
-    /*
-    403 FORBIDDEN
-     */
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+	/*
+	403 FORBIDDEN
+	 */
+	ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 	;
 
 	private final HttpStatus httpStatus;

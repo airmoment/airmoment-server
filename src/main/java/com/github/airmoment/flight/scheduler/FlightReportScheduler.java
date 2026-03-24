@@ -62,8 +62,8 @@ public class FlightReportScheduler {
 				+ sheetsProperties.spreadsheetId();
 			discordClient.sendMessage(
 				"✈️ 오늘의 항공권 데이터를 수집하여 시트에 업데이트하였습니다.\n" +
-				"⏰ 수집 일자 : " +  LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시")) +
-				"\n🔗 바로가기 : " + url
+					"⏰ 수집 일자 : " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시")) +
+					"\n🔗 바로가기 : " + url
 			);
 
 			log.info("일일 리포트 완료");
@@ -161,7 +161,8 @@ public class FlightReportScheduler {
 		List<List<Object>> rows = new ArrayList<>();
 
 		for (FlightSearch s : searches) {
-			if (s.getFlightPriceInsight() == null) continue;
+			if (s.getFlightPriceInsight() == null)
+				continue;
 			FlightPriceInsight i = s.getFlightPriceInsight();
 			rows.add(List.of(
 				i.getId(),
@@ -192,9 +193,12 @@ public class FlightReportScheduler {
 	}
 
 	private Object nullSafe(Object value) {
-		if (value == null) return "";
-		if (value instanceof LocalDateTime dt) return dt.toString();
-		if (value instanceof LocalDate d) return d.toString();
+		if (value == null)
+			return "";
+		if (value instanceof LocalDateTime dt)
+			return dt.toString();
+		if (value instanceof LocalDate d)
+			return d.toString();
 		return value;
 	}
 }

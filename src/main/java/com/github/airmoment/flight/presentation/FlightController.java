@@ -21,7 +21,7 @@ public class FlightController {
 	private final FlightReportScheduler flightReportScheduler;
 
 	@PostMapping("/dataScheduler")
-	public ResponseEntity<SuccessResponse<Void>> runDataScheduler(){
+	public ResponseEntity<SuccessResponse<Void>> runDataScheduler() {
 		flightDataScheduler.collectFlightData();
 		return ResponseEntity.ok()
 			.body(SuccessResponse.of(200, "항공권 데이터가 조회되어 db에 저장되었습니다."));

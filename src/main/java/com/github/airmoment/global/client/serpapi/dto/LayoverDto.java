@@ -9,4 +9,5 @@ public record LayoverDto(
 	@JsonProperty("id") String id,
 	@JsonProperty("duration") Integer duration,
 	@JsonProperty("overnight") Boolean overnight
-) {}
+) {
+}

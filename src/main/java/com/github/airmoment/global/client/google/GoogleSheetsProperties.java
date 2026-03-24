@@ -6,4 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record GoogleSheetsProperties(
 	String spreadsheetId,
 	String credentialsJson
-) {}
+) {
+}

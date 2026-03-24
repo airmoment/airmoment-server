@@ -13,4 +13,5 @@ public record FlightSegmentDto(
 	@JsonProperty("travel_class") String travelClass,
 	@JsonProperty("legroom") String legroom,
 	@JsonProperty("airplane") String airplane
-) {}
+) {
+}

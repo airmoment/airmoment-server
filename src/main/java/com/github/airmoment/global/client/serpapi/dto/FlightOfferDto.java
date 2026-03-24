@@ -13,4 +13,5 @@ public record FlightOfferDto(
 	@JsonProperty("price") Integer price,
 	@JsonProperty("type") String type,
 	@JsonProperty("departure_token") String departureToken
-) {}
+) {
+}

@@ -46,7 +46,8 @@ public class FlightDataScheduler {
 
 	private void collectForPeriod(LocalDate departureDate, LocalDate returnDate) {
 		for (String targetAirport : TARGET_AIRPORTS) {
-			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, departureDate, returnDate, null);
+			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, departureDate,
+				returnDate, null);
 			FlightSearchResponse outboundResponse = serpApiClient.fetchOutBoundFlights(
 				ORIGIN, targetAirport,
 				departureDate.toString(),
@@ -57,7 +58,8 @@ public class FlightDataScheduler {
 
 			List<String> departureTokens = extractTop3DepartureTokens(outboundResponse);
 			for (String departureToken : departureTokens) {
-				FlightSearch inboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, departureDate, returnDate, departureToken);
+				FlightSearch inboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport,
+					departureDate, returnDate, departureToken);
 				FlightSearchResponse inboundResponse = serpApiClient.fetchInBoundFlights(
 					departureToken,
 					ORIGIN, targetAirport,
@@ -71,7 +73,8 @@ public class FlightDataScheduler {
 	}
 
 	private List<String> extractTop3DepartureTokens(FlightSearchResponse response) {
-		List<FlightOfferDto> flights = response.bestFlights() == null ? response.otherFlights() : response.bestFlights();
+		List<FlightOfferDto> flights =
+			response.bestFlights() == null ? response.otherFlights() : response.bestFlights();
 
 		return flights
 			.stream()

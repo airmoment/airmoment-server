@@ -41,7 +41,8 @@ public class FlightDataService {
 	private final FlightPriceInsightRepository flightPriceInsightRepository;
 	private final FlightSegmentRepository flightSegmentRepository;
 
-	public FlightSearch saveFlightSearch(String departureAirportCode, String arrivalAirportCode, LocalDate departureDate, LocalDate arrivalDate, String departureToken) {
+	public FlightSearch saveFlightSearch(String departureAirportCode, String arrivalAirportCode,
+		LocalDate departureDate, LocalDate arrivalDate, String departureToken) {
 		FlightSearch flightSearch = FlightSearch.of(
 			departureAirportCode,
 			arrivalAirportCode,
@@ -66,7 +67,8 @@ public class FlightDataService {
 
 	private void saveFlightOffers(FlightSearch flightSearch,
 		List<FlightOfferDto> offerDtos, boolean isBest) {
-		if (offerDtos == null || offerDtos.isEmpty()) return;
+		if (offerDtos == null || offerDtos.isEmpty())
+			return;
 
 		// departure_token 유무로 direction 판단
 		// inbound 2차 호출 응답은 departure_token이 없음
@@ -110,7 +112,8 @@ public class FlightDataService {
 	}
 
 	private void saveFlightSegments(FlightOffer flightOffer, List<FlightSegmentDto> segmentDtos) {
-		if (segmentDtos == null || segmentDtos.isEmpty()) return;
+		if (segmentDtos == null || segmentDtos.isEmpty())
+			return;
 
 		for (int i = 0; i < segmentDtos.size(); i++) {
 			FlightSegmentDto dto = segmentDtos.get(i);
@@ -177,7 +180,8 @@ public class FlightDataService {
 
 	private void savePriceHistories(FlightSearch flightSearch, List<List<Long>> priceHistory) {
 		for (List<Long> entry : priceHistory) {
-			if (entry == null || entry.size() < 2) continue;
+			if (entry == null || entry.size() < 2)
+				continue;
 
 			FlightPriceHistory history = FlightPriceHistory.of(
 				flightSearch,
@@ -189,7 +193,8 @@ public class FlightDataService {
 	}
 
 	private LocalDateTime parseDateTime(String dateTimeStr) {
-		if (dateTimeStr == null || dateTimeStr.isBlank()) return null;
+		if (dateTimeStr == null || dateTimeStr.isBlank())
+			return null;
 		return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 	}
 }

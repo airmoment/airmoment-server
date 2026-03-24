@@ -11,4 +11,5 @@ public record PriceInsightDto(
 	@JsonProperty("price_level") String priceLevel,
 	@JsonProperty("typical_price_range") List<Integer> typicalPriceRange,
 	@JsonProperty("price_history") List<List<Long>> priceHistory
-) {}
+) {
+}
