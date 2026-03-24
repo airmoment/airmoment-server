@@ -9,7 +9,7 @@ import com.github.airmoment.global.response.base.BaseCode;
 public record ErrorResponse(
 	int status,
 	String message,
-    String detail
+	String detail
 ) {
 
 	public static ErrorResponse of(BaseCode baseCode) {
@@ -22,9 +22,9 @@ public record ErrorResponse(
 
 	public static ErrorResponse of(BaseCode baseCode, Object detail) { //디테일 추가 커스텀
 		return new ErrorResponse(
-                baseCode.getHttpStatus().value(),
-                baseCode.getMessage(),
-                detail != null ? detail.toString() : null
+			baseCode.getHttpStatus().value(),
+			baseCode.getMessage(),
+			detail != null ? detail.toString() : null
 		);
 	}
 }

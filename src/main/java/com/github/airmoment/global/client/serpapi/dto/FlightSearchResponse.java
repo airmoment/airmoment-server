@@ -10,4 +10,5 @@ public record FlightSearchResponse(
 	@JsonProperty("best_flights") List<FlightOfferDto> bestFlights,
 	@JsonProperty("other_flights") List<FlightOfferDto> otherFlights,
 	@JsonProperty("price_insights") PriceInsightDto priceInsights
-) {}
+) {
+}

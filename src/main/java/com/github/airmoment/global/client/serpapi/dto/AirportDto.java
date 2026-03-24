@@ -8,4 +8,5 @@ public record AirportDto(
 	@JsonProperty("name") String name,
 	@JsonProperty("id") String id,
 	@JsonProperty("time") String time
-) {}
+) {
+}
