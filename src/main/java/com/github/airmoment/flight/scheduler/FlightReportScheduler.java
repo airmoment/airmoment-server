@@ -33,7 +33,7 @@ public class FlightReportScheduler {
 	private final DiscordClient discordClient;
 	private final GoogleSheetsProperties sheetsProperties;
 
-	@Scheduled(cron = "0 5 0 * * *", zone = "Asia/Seoul")  // 매일 00시
+	@Scheduled(cron = "0 5 12 * * *", zone = "Asia/Seoul")  // 매일 00시
 	public void reportDailyData() {
 		log.info("일일 리포트 시작");
 		try {
