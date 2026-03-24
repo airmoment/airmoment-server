@@ -9,6 +9,7 @@ import com.github.airmoment.global.client.discord.DiscordProperties;
 import com.github.airmoment.global.client.google.GoogleSheetsProperties;
 import com.github.airmoment.global.client.serpapi.SerpApiProperties;
 
+@EnableScheduling
 @EnableConfigurationProperties({
 	SerpApiProperties.class,
 	DiscordProperties.class,

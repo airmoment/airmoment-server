@@ -1,7 +1,6 @@
 package com.github.airmoment.flight.presentation;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +26,7 @@ public class FlightController {
 			.body(SuccessResponse.of(200, "항공권 데이터가 조회되어 db에 저장되었습니다."));
 	}
 
-	@GetMapping("/reportScheduler")
+	@PostMapping("/reportScheduler")
 	public ResponseEntity<SuccessResponse<Void>> runReportScheduler() {
 		flightReportScheduler.reportDailyData();
 		return ResponseEntity.ok()

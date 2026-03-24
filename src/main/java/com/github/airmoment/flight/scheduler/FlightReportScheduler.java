@@ -2,6 +2,7 @@ package com.github.airmoment.flight.scheduler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +29,19 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class FlightReportScheduler {
 
+	private static final ZoneId REPORT_ZONE = ZoneId.of("Asia/Seoul");
+
 	private final FlightSearchRepository flightSearchRepository;
 	private final GoogleSheetsClient googleSheetsClient;
 	private final DiscordClient discordClient;
 	private final GoogleSheetsProperties sheetsProperties;
 
-	@Scheduled(cron = "0 5 12 * * *", zone = "Asia/Seoul")  // 매일 00시
+	@Scheduled(cron = "0 5 12 * * *", zone = "Asia/Seoul")
 	public void reportDailyData() {
 		log.info("일일 리포트 시작");
 		try {
 			// 오늘 하루의 시작과 끝
-			LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+			LocalDateTime startOfDay = LocalDate.now(REPORT_ZONE).atStartOfDay();
 			LocalDateTime endOfDay = startOfDay.plusDays(1);
 
 			List<FlightSearch> todaySearches = flightSearchRepository
@@ -62,7 +65,7 @@ public class FlightReportScheduler {
 				+ sheetsProperties.spreadsheetId();
 			discordClient.sendMessage(
 				"✈️ 오늘의 항공권 데이터를 수집하여 시트에 업데이트하였습니다.\n" +
-					"⏰ 수집 일자 : " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시")) +
+					"⏰ 수집 일자 : " + LocalDateTime.now(REPORT_ZONE).format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 HH시")) +
 					"\n🔗 바로가기 : " + url
 			);
 
