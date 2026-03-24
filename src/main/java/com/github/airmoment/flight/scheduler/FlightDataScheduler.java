@@ -27,7 +27,7 @@ public class FlightDataScheduler {
 	private static final String ORIGIN = "ICN";
 	private static final List<String> TARGET_AIRPORTS = List.of("NRT", "DAD", "CDG");
 
-	@Scheduled(cron = "0 0 0,12 * * *")  // 매일 00시, 12시
+	@Scheduled(cron = "0 0 0,12 * * *", zone = "Asia/Seoul")  // 매일 00시, 12시
 	public void collectFlightData() {
 		log.info("항공편 데이터 수집 시작: {}", LocalDateTime.now());
 
