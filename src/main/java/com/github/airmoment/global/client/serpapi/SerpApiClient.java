@@ -14,8 +14,8 @@ public class SerpApiClient {
 	private final RestClient restClient;
 	private final SerpApiProperties properties;
 
-	public FlightSearchResponse fetchOutBoundFlights(String departureId, String arrivalId,
-		String outboundDate, String returnDate) {
+	public FlightSearchResponse fetchFlights(String departureId, String arrivalId,
+		String outboundDate) {
 		return restClient.get()
 			.uri(uriBuilder -> uriBuilder
 				.scheme("https")
@@ -26,30 +26,7 @@ public class SerpApiClient {
 				.queryParam("departure_id", departureId)
 				.queryParam("arrival_id", arrivalId)
 				.queryParam("outbound_date", outboundDate)
-				.queryParam("return_date", returnDate)
-				.queryParam("type", "1")       // 왕복
-				.queryParam("currency", "KRW")
-				.queryParam("hl", "ko")
-				.queryParam("gl", "kr")
-				.build())
-			.retrieve()
-			.body(FlightSearchResponse.class);
-	}
-
-	public FlightSearchResponse fetchInBoundFlights(String departureToken, String departureId,
-		String arrivalId, String outboundDate, String returnDate) {
-		return restClient.get()
-			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
-				.host("serpapi.com")
-				.path("/search")
-				.queryParam("departure_token", departureToken)
-				.queryParam("engine", "google_flights")
-				.queryParam("api_key", properties.apiKey())
-				.queryParam("departure_id", departureId)
-				.queryParam("arrival_id", arrivalId)
-				.queryParam("outbound_date", outboundDate)
-				.queryParam("return_date", returnDate)
+				.queryParam("type", "2")       // ← 편도
 				.queryParam("currency", "KRW")
 				.queryParam("hl", "ko")
 				.queryParam("gl", "kr")
