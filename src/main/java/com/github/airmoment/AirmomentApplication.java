@@ -3,6 +3,7 @@ package com.github.airmoment;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.github.airmoment.global.client.discord.DiscordProperties;
 import com.github.airmoment.global.client.google.GoogleSheetsProperties;

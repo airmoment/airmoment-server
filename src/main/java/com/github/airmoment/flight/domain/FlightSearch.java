@@ -40,12 +40,6 @@ public class FlightSearch {
 	@Column(nullable = false)
 	private LocalDate outboundDate;
 
-	@Column(nullable = false)
-	private LocalDate returnDate;
-
-	@Column(nullable = true, columnDefinition = "TEXT")
-	private String departureToken;
-
 	@OneToMany(mappedBy = "flightSearch", cascade = CascadeType.ALL)
 	private List<FlightOffer> flightOffers = new ArrayList<>();
 
@@ -56,14 +50,12 @@ public class FlightSearch {
 	private List<FlightPriceHistory> flightPriceHistories = new ArrayList<>();
 
 	public static FlightSearch of(String departureAirportCode, String arrivalAirportCode,
-		LocalDate outboundDate, LocalDate returnDate, String departureToken) {
+		LocalDate outboundDate) {
 		FlightSearch flightSearch = new FlightSearch();
 		flightSearch.searchedAt = LocalDateTime.now();
 		flightSearch.departureAirportCode = departureAirportCode;
 		flightSearch.arrivalAirportCode = arrivalAirportCode;
 		flightSearch.outboundDate = outboundDate;
-		flightSearch.returnDate = returnDate;
-		flightSearch.departureToken = departureToken;
 		return flightSearch;
 	}
 }
