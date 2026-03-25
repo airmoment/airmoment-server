@@ -19,6 +19,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: airmoment
+      TZ: Asia/Seoul
     volumes:
       - mysql-data:/var/lib/mysql
     healthcheck:
