@@ -1,3 +1,4 @@
+src/main/resources/google-credentials.json
 .env
 application.yml
 application-*.yml
