@@ -34,6 +34,10 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.APPLICATION_DEV_YML }}" > src/main/resources/application-dev.yml
 
+      - name: google credentials 주입
+        run: |
+          echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > src/main/resources/google-credentials.json
+
       - name: 빌드
         run: ./gradlew build -x test
 

@@ -1,6 +1,6 @@
 package com.github.airmoment.global.client.google;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -25,8 +25,7 @@ public class GoogleSheetsClient {
 
 	private Sheets getSheetsService() throws Exception {
 		GoogleCredentials credentials = GoogleCredentials
-			.fromStream(new ByteArrayInputStream(
-				properties.credentialsJson().getBytes()))
+			.fromStream(new FileInputStream(properties.credentialsPath()))
 			.createScoped(List.of(SheetsScopes.SPREADSHEETS));
 
 		return new Sheets.Builder(

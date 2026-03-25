@@ -5,6 +5,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "google.sheets")
 public record GoogleSheetsProperties(
 	String spreadsheetId,
-	String credentialsJson
+	String credentialsPath
 ) {
 }
