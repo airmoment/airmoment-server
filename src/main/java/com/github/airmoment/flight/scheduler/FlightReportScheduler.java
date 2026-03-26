@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.github.airmoment.flight.domain.FlightLayover;
 import com.github.airmoment.flight.domain.FlightOffer;
@@ -36,6 +37,7 @@ public class FlightReportScheduler {
 	private final DiscordClient discordClient;
 	private final GoogleSheetsProperties sheetsProperties;
 
+	@Transactional
 	@Scheduled(cron = "0 5 12 * * *", zone = "Asia/Seoul")
 	public void reportDailyData() {
 		log.info("일일 리포트 시작");
