@@ -1,8 +1,11 @@
 package com.github.airmoment.global.client.google;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -24,9 +27,18 @@ public class GoogleSheetsClient {
 	private final GoogleSheetsProperties properties;
 
 	private Sheets getSheetsService() throws Exception {
-		GoogleCredentials credentials = GoogleCredentials
-			.fromStream(new FileInputStream(properties.credentialsPath()))
-			.createScoped(List.of(SheetsScopes.SPREADSHEETS));
+		String path = properties.credentialsPath();
+		GoogleCredentials credentials;
+		try(
+			InputStream credentialsStream = path.startsWith("classpath:")
+				? new ClassPathResource(path.substring("classpath:".length())).getInputStream()
+				: Files.newInputStream(Paths.get(path))
+		) {
+			credentials = GoogleCredentials
+				.fromStream(credentialsStream)
+				.createScoped(List.of(SheetsScopes.SPREADSHEETS));
+		}
+
 
 		return new Sheets.Builder(
 			GoogleNetHttpTransport.newTrustedTransport(),
