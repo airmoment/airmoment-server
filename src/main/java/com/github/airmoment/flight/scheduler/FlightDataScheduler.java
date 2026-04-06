@@ -2,6 +2,7 @@ package com.github.airmoment.flight.scheduler;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,12 +33,15 @@ public class FlightDataScheduler {
 		LocalDate.of(2026, 12, 25)
 	);
 
+	private static final ZoneId SCHEDULER_ZONE = ZoneId.of("Asia/Seoul");
+
+
 	@Scheduled(cron = "0 0 0,12 * * *", zone = "Asia/Seoul")  // 매일 00시, 12시
 	public void collectFlightData() {
 
 		// 동적으로 변하는 출발일자 : 현재로부터 한 달 후
-		LocalDate dynamicOutboundDate = LocalDate.now().plusMonths(1);
-		log.info("항공편 데이터 수집 시작: {}", LocalDateTime.now());
+		LocalDate dynamicOutboundDate = LocalDate.now(SCHEDULER_ZONE).plusMonths(1);
+		log.info("항공편 데이터 수집 시작: {}", LocalDateTime.now(SCHEDULER_ZONE));
 
 		try {
 			collectForPeriod(dynamicOutboundDate);
@@ -57,8 +61,13 @@ public class FlightDataScheduler {
 	}
 
 	private void fetchAndSaveData(String targetAirport, LocalDate outboundDate) {
-		FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, outboundDate);
-		FlightSearchResponse outboundResponse = serpApiClient.fetchFlights(ORIGIN, targetAirport, outboundDate.toString());
-		flightDataService.saveFlights(outboundFlightSearch, outboundResponse, FlightDirection.OUTBOUND);
+		try{
+			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, outboundDate);
+			FlightSearchResponse outboundResponse = serpApiClient.fetchFlights(ORIGIN, targetAirport, outboundDate.toString());
+			flightDataService.saveFlights(outboundFlightSearch, outboundResponse, FlightDirection.OUTBOUND);
+			}
+			catch(Exception e) {
+			log.error("{}에 출발하는 {}행 항공편 데이터 수집이 실패하였습니다. ", outboundDate, targetAirport);
+			}
 	}
 }

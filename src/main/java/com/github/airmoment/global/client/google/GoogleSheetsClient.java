@@ -28,13 +28,17 @@ public class GoogleSheetsClient {
 
 	private Sheets getSheetsService() throws Exception {
 		String path = properties.credentialsPath();
-		InputStream credentialsStream = path.startsWith("classpath:")
-			? new ClassPathResource(path.substring("classpath:".length())).getInputStream()
-			: Files.newInputStream(Paths.get(path));
+		GoogleCredentials credentials;
+		try(
+			InputStream credentialsStream = path.startsWith("classpath:")
+				? new ClassPathResource(path.substring("classpath:".length())).getInputStream()
+				: Files.newInputStream(Paths.get(path))
+		) {
+			credentials = GoogleCredentials
+				.fromStream(credentialsStream)
+				.createScoped(List.of(SheetsScopes.SPREADSHEETS));
+		}
 
-		GoogleCredentials credentials = GoogleCredentials
-			.fromStream(credentialsStream)
-			.createScoped(List.of(SheetsScopes.SPREADSHEETS));
 
 		return new Sheets.Builder(
 			GoogleNetHttpTransport.newTrustedTransport(),
