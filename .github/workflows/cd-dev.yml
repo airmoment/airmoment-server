@@ -92,4 +92,4 @@ jobs:
             cd /home/ubuntu/airmoment-server
             docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
             docker-compose -f docker-compose-dev.yml down
-            docker-compose -f docker-compose-dev.yml up -d --build fastapi
+            docker-compose -f docker-compose-dev.yml up -d --build

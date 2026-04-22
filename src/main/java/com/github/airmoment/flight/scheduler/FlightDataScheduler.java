@@ -63,8 +63,8 @@ public class FlightDataScheduler {
 		String departure = route.getDeparture().getCode();
 		String arrival = route.getArrival().getCode();
 		try {
-			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(departure, arrival, outboundDate);
 			FlightSearchResponse outboundResponse = serpApiClient.fetchFlights(departure, arrival, outboundDate.toString());
+			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(departure, arrival, outboundDate);
 			flightDataService.saveFlights(outboundFlightSearch, outboundResponse, FlightDirection.OUTBOUND);
 		} catch (Exception e) {
 			log.error("{}에 출발하는 {}행 항공편 데이터 수집이 실패하였습니다. ", outboundDate, arrival);

@@ -16,10 +16,17 @@ import com.github.airmoment.flight.domain.FlightPriceHistory;
 public interface FlightPriceHistoryRepository extends JpaRepository<FlightPriceHistory, Long> {
 
 	@Query("SELECT fph.price FROM FlightPriceHistory fph "
-		+ "WHERE fph.flightSearch.departureAirportCode = :dep "
-		+ "AND fph.flightSearch.arrivalAirportCode = :arr "
-		+ "AND fph.flightSearch.outboundDate = :date "
-		+ "AND fph.flightSearch.searchedAt <= :now "
+		+ "JOIN fph.flightSearch fs "
+		+ "WHERE fs.departureAirportCode = :dep "
+		+ "AND fs.arrivalAirportCode = :arr "
+		+ "AND fs.outboundDate = :date "
+		+ "AND fs.searchedAt = ("
+		+ "  SELECT MAX(fs2.searchedAt) FROM FlightSearch fs2 "
+		+ "  WHERE fs2.departureAirportCode = :dep "
+		+ "  AND fs2.arrivalAirportCode = :arr "
+		+ "  AND fs2.outboundDate = :date "
+		+ "  AND fs2.searchedAt <= :now"
+		+ ") "
 		+ "ORDER BY fph.timeStamp DESC")
 	List<Integer> findLatestHistoryPrices(
 		@Param("dep") String dep,

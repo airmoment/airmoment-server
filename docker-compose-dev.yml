@@ -16,14 +16,14 @@ services:
 
   fastapi:
     build: ../airmoment-ai-server
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     restart: always
 
   db:
     image: mysql:8.0
-    ports:
-      - "3306:3306"
+    expose:
+      - "6379"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: airmoment

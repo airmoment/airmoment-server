@@ -11,12 +11,9 @@ import java.util.List;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.airmoment.exception.FlightErrorCode;
-import com.github.airmoment.flight.domain.Airline;
 import com.github.airmoment.flight.domain.enums.FlightSortOption;
 import com.github.airmoment.flight.dto.AIPredictionResponse;
 import com.github.airmoment.flight.dto.CachedFlightItem;
@@ -25,7 +22,6 @@ import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.dto.FlightItemResponse;
 import com.github.airmoment.flight.dto.FlightListResponse;
 import com.github.airmoment.flight.dto.FlightPredictDto;
-import com.github.airmoment.flight.repository.AirlineRepository;
 import com.github.airmoment.global.client.fastapi.AIServerClient;
 import com.github.airmoment.global.client.serpapi.SerpApiClient;
 import com.github.airmoment.global.client.serpapi.dto.FlightOfferDto;
@@ -46,13 +42,12 @@ public class FlightSearchService {
 	private static final DateTimeFormatter SEGMENT_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	private final SerpApiClient serpApiClient;
-	private final AirlineRepository airlineRepository;
+	private final AirlineService airlineService;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 	private final FlightFeatureService flightFeatureService;
 	private final AIServerClient aiServerClient;
 
-	@Transactional
 	public FlightListResponse searchFlights(
 		String departureCode,
 		String arrivalCode,
@@ -72,15 +67,28 @@ public class FlightSearchService {
 
 		FlightSortOption effectiveSort = sort != null ? sort : FlightSortOption.DEPARTURE_TIME_ASC;
 
-		List<FlightItemResponse> result = cached.flights().stream()
+		List<CachedFlightItem> filteredFlights = cached.flights().stream()
 			.filter(item -> nonstopOnly == null || !nonstopOnly || item.nonstop())
 			.filter(item -> maxPrice == null || item.price() <= maxPrice)
+			.toList();
+
+		List<FlightItemResponse> result = filteredFlights.stream()
 			.sorted(getComparator(effectiveSort))
 			.map(FlightItemResponse::from)
 			.toList();
 
+		if (result.isEmpty()) {
+			return FlightListResponse.of(null, null);
+		}
+
+		CachedFlightResult predictionInput = new CachedFlightResult(
+			filteredFlights,
+			cached.typicalPriceMin(),
+			cached.typicalPriceMax()
+		);
+
 		// 입력값, 항공권 조회값을 바탕으로 featureVector 계산
-		FlightFeatureVector featureVector = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, cached);
+		FlightFeatureVector featureVector = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, predictionInput);
 		log.info("입력한 조건의 항공권 결과에 대한 feature vector 계산이 완료되었습니다. \n****FeatureVector****\n {}", featureVector);
 
 		AIPredictionResponse prediction = null;
@@ -142,12 +150,7 @@ public class FlightSearchService {
 	}
 
 	private String resolveAirlinePhoto(String airlineName) {
-		if (airlineName == null || airlineName.isBlank()) {
-			return null;
-		}
-		return airlineRepository.findByName(airlineName)
-			.orElseGet(() -> airlineRepository.save(Airline.of(airlineName)))
-			.getPhoto();
+		return airlineService.findOrCreatePhoto(airlineName);
 	}
 
 	private LocalTime parseTime(String timeStr) {
@@ -167,12 +170,12 @@ public class FlightSearchService {
 	}
 
 	private CachedFlightResult getFromCache(String key) {
-		String json = redisTemplate.opsForValue().get(key);
-		if (json == null) return null;
 		try {
+			String json = redisTemplate.opsForValue().get(key);
+			if (json == null) return null;
 			return objectMapper.readValue(json, CachedFlightResult.class);
-		} catch (JsonProcessingException e) {
-			log.warn("Redis 캐시 역직렬화 실패 - key: {}, error: {}", key, e.getMessage());
+		} catch (Exception e) {
+			log.warn("Redis 캐시 조회 실패 - key: {}, error: {}", key, e.getMessage());
 			return null;
 		}
 	}
@@ -180,7 +183,7 @@ public class FlightSearchService {
 	private void saveToCache(String key, CachedFlightResult result) {
 		try {
 			redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(result), CACHE_TTL);
-		} catch (JsonProcessingException e) {
+		} catch (Exception e) {
 			log.warn("Redis 캐시 저장 실패 - key: {}, error: {}", key, e.getMessage());
 		}
 	}
