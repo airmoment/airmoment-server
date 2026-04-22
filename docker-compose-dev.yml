@@ -10,12 +10,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
+
+  fastapi:
+    build: ../airmoment-ai-server
+    expose:
+      - "8000"
     restart: always
 
   db:
     image: mysql:8.0
-    ports:
-      - "3306:3306"
+    expose:
+      - "6379"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: airmoment
@@ -28,6 +36,12 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
+    restart: always
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
     restart: always
 
 volumes:

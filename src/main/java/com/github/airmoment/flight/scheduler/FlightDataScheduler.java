@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.github.airmoment.flight.domain.FlightSearch;
+import com.github.airmoment.flight.domain.enums.AirportRoute;
 import com.github.airmoment.flight.domain.enums.FlightDirection;
 import com.github.airmoment.flight.service.FlightDataService;
 import com.github.airmoment.global.client.serpapi.SerpApiClient;
@@ -25,8 +26,6 @@ public class FlightDataScheduler {
 	private final SerpApiClient serpApiClient;
 	private final FlightDataService flightDataService;
 
-	private static final String ORIGIN = "ICN";
-	private static final List<String> TARGET_AIRPORTS = List.of("CDG", "JFK", "SYD");
 	private static final List<LocalDate> FIXED_OUTBOUND_DATES = List.of(
 		LocalDate.of(2026, 7, 25),
 		LocalDate.of(2026, 11, 15),
@@ -52,22 +51,23 @@ public class FlightDataScheduler {
 	}
 
 	private void collectForPeriod(LocalDate dynamicOutboundDate) {
-		for (String targetAirport : TARGET_AIRPORTS) {
-			fetchAndSaveData(targetAirport, dynamicOutboundDate);
+		for (AirportRoute route : AirportRoute.values()) {
+			fetchAndSaveData(route, dynamicOutboundDate);
 			for (LocalDate outboundDate : FIXED_OUTBOUND_DATES) {
-				fetchAndSaveData(targetAirport, outboundDate);
+				fetchAndSaveData(route, outboundDate);
 			}
 		}
 	}
 
-	private void fetchAndSaveData(String targetAirport, LocalDate outboundDate) {
-		try{
-			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(ORIGIN, targetAirport, outboundDate);
-			FlightSearchResponse outboundResponse = serpApiClient.fetchFlights(ORIGIN, targetAirport, outboundDate.toString());
+	private void fetchAndSaveData(AirportRoute route, LocalDate outboundDate) {
+		String departure = route.getDeparture().getCode();
+		String arrival = route.getArrival().getCode();
+		try {
+			FlightSearchResponse outboundResponse = serpApiClient.fetchFlights(departure, arrival, outboundDate.toString());
+			FlightSearch outboundFlightSearch = flightDataService.saveFlightSearch(departure, arrival, outboundDate);
 			flightDataService.saveFlights(outboundFlightSearch, outboundResponse, FlightDirection.OUTBOUND);
-			}
-			catch(Exception e) {
-			log.error("{}에 출발하는 {}행 항공편 데이터 수집이 실패하였습니다. ", outboundDate, targetAirport);
-			}
+		} catch (Exception e) {
+			log.error("{}에 출발하는 {}행 항공편 데이터 수집이 실패하였습니다. ", outboundDate, arrival);
+		}
 	}
 }
