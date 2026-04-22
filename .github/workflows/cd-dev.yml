@@ -80,6 +80,16 @@ jobs:
             cd /home/ubuntu/airmoment-server
             git fetch origin develop
             git reset --hard origin/develop
+
+            if [ -d "/home/ubuntu/airmoment-ai-server" ]; then
+              cd /home/ubuntu/airmoment-ai-server && git fetch origin main && git reset --hard origin/main
+            else
+              git clone https://github.com/airmoment/airmoment-ai-server.git /home/ubuntu/airmoment-ai-server
+            fi
+
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+              docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+            cd /home/ubuntu/airmoment-server
             docker pull ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:latest
             docker-compose -f docker-compose-dev.yml down
-            docker-compose -f docker-compose-dev.yml up -d
+            docker-compose -f docker-compose-dev.yml up -d --build fastapi
