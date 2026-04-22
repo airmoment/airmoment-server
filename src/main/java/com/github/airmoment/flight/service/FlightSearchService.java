@@ -15,18 +15,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.airmoment.exception.FlightErrorCode;
 import com.github.airmoment.flight.domain.Airline;
 import com.github.airmoment.flight.domain.enums.FlightSortOption;
+import com.github.airmoment.flight.dto.AIPredictionResponse;
 import com.github.airmoment.flight.dto.CachedFlightItem;
 import com.github.airmoment.flight.dto.CachedFlightResult;
 import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.dto.FlightItemResponse;
 import com.github.airmoment.flight.dto.FlightListResponse;
+import com.github.airmoment.flight.dto.FlightPredictDto;
 import com.github.airmoment.flight.repository.AirlineRepository;
+import com.github.airmoment.global.client.fastapi.AIServerClient;
 import com.github.airmoment.global.client.serpapi.SerpApiClient;
 import com.github.airmoment.global.client.serpapi.dto.FlightOfferDto;
 import com.github.airmoment.global.client.serpapi.dto.FlightSearchResponse;
 import com.github.airmoment.global.client.serpapi.dto.FlightSegmentDto;
+import com.github.airmoment.global.exception.AirmomentException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +50,7 @@ public class FlightSearchService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 	private final FlightFeatureService flightFeatureService;
+	private final AIServerClient aiServerClient;
 
 	@Transactional
 	public FlightListResponse searchFlights(
@@ -73,10 +79,28 @@ public class FlightSearchService {
 			.map(FlightItemResponse::from)
 			.toList();
 
+		// 입력값, 항공권 조회값을 바탕으로 featureVector 계산
 		FlightFeatureVector featureVector = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, cached);
 		log.info("입력한 조건의 항공권 결과에 대한 feature vector 계산이 완료되었습니다. \n****FeatureVector****\n {}", featureVector);
 
-		return FlightListResponse.of(result);
+		AIPredictionResponse prediction = null;
+		try {
+			prediction = getPrediction(featureVector);
+		} catch (Exception e) {
+			log.error("AI 서버의 예측 API를 호출이 실패하였습니다.\nerror:{}", e.getMessage());
+		}
+
+		if (prediction != null) {
+			FlightPredictDto predictDto = new FlightPredictDto(prediction.decision());
+			return FlightListResponse.of(predictDto, result);
+		}
+		else {
+			throw new AirmomentException(FlightErrorCode.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private AIPredictionResponse getPrediction(FlightFeatureVector featureVector) {
+		return aiServerClient.predict(featureVector);
 	}
 
 	private CachedFlightResult buildCachedResult(FlightSearchResponse response) {

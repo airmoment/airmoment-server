@@ -108,7 +108,7 @@ public class FlightFeatureService {
 			? currentCheapestPrice / computeMean(histPrices) : null;
 
 		return new FlightFeatureVector(
-			routeId, searchedDayOfWeek, daysToDeparture, isWeekendSearch, isLongHaul,
+			routeId, departureCode, arrivalCode, departureAt.toString(), searchedDayOfWeek, daysToDeparture, isWeekendSearch, isLongHaul,
 			offerCount, nonstopRatio, cheapestNonstopPrice, cheapestOfferHasLayover, currentCheapestPrice,
 			currGapToTypicalMin, currGapToTypicalMax,
 			histRecentStd, histRecentSlope, currVsHistMean,
