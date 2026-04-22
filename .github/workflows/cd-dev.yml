@@ -82,9 +82,9 @@ jobs:
             git reset --hard origin/develop
 
             if [ -d "/home/ubuntu/airmoment-ai-server" ]; then
-              cd /home/ubuntu/airmoment-ai-server && git fetch origin main && git reset --hard origin/main
+              cd /home/ubuntu/airmoment-ai-server && git fetch origin develop && git reset --hard origin/develop
             else
-              git clone https://github.com/airmoment/airmoment-ai-server.git /home/ubuntu/airmoment-ai-server
+              git clone -b develop https://github.com/airmoment/airmoment-ai-server.git /home/ubuntu/airmoment-ai-server
             fi
 
             aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
