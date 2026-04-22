@@ -30,6 +30,7 @@ public class SerpApiClient {
 				.queryParam("currency", "KRW")
 				.queryParam("hl", "ko")
 				.queryParam("gl", "kr")
+				.queryParam("travel_class", "1")
 				.build())
 			.retrieve()
 			.body(FlightSearchResponse.class);
