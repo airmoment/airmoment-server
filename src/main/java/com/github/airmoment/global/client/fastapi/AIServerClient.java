@@ -1,6 +1,7 @@
 package com.github.airmoment.global.client.fastapi;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -24,6 +25,8 @@ public class AIServerClient {
 	public AIPredictionResponse predict(FlightFeatureVector featureVector) {
 		return restClient.post()
 			.uri(aiServerProperties.baseUrl() + "/predict")
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
 			.body(featureVector)
 			.retrieve()
 			.body(AIPredictionResponse.class);
