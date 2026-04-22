@@ -19,6 +19,7 @@ import com.github.airmoment.flight.domain.Airline;
 import com.github.airmoment.flight.domain.enums.FlightSortOption;
 import com.github.airmoment.flight.dto.CachedFlightItem;
 import com.github.airmoment.flight.dto.CachedFlightResult;
+import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.dto.FlightItemResponse;
 import com.github.airmoment.flight.dto.FlightListResponse;
 import com.github.airmoment.flight.repository.AirlineRepository;
@@ -43,6 +44,7 @@ public class FlightSearchService {
 	private final AirlineRepository airlineRepository;
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
+	private final FlightFeatureService flightFeatureService;
 
 	@Transactional
 	public FlightListResponse searchFlights(
@@ -70,6 +72,9 @@ public class FlightSearchService {
 			.sorted(getComparator(effectiveSort))
 			.map(FlightItemResponse::from)
 			.toList();
+
+		FlightFeatureVector featureVector = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, cached);
+		log.info("입력한 조건의 항공권 결과에 대한 feature vector 계산이 완료되었습니다. \n****FeatureVector****\n {}", featureVector);
 
 		return FlightListResponse.of(result);
 	}
