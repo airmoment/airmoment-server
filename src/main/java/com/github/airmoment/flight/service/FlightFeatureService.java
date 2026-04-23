@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class FlightFeatureService {
 
-	private static final ZoneId KST = ZoneId.of("Asia/Seoul");
+	private static final ZoneId SYSTEM_ZONE = ZoneId.systemDefault();
 	private static final int ROLLING_WINDOW = 3;
 	private static final int HISTORY_WINDOW = 5;
 
@@ -49,7 +49,7 @@ public class FlightFeatureService {
 		LocalDate departureAt,
 		CachedFlightResult cached
 	) {
-		LocalDateTime now = LocalDateTime.now(KST);
+		LocalDateTime now = LocalDateTime.now(SYSTEM_ZONE);
 		String routeId = departureCode + "-" + arrivalCode;
 		String searchedDayOfWeek = now.getDayOfWeek().name().substring(0, 3); // MON~SUN
 		int daysToDeparture = (int) ChronoUnit.DAYS.between(now.toLocalDate(), departureAt);
@@ -84,17 +84,21 @@ public class FlightFeatureService {
 		Integer currGapToTypicalMax = cached.typicalPriceMax() != null
 			? currentCheapestPrice - cached.typicalPriceMax() : null;
 
-		// 2-3: trajectory 내 과거 FlightSearch별 최저 OUTBOUND 가격 시계열 (최근 3개, DESC)
+		// 2-3: trajectory 내 과거 FlightSearch별 최저 OUTBOUND 가격 시계열 (최근 2개, DESC)
 		List<Integer> recentObs = flightOfferRepository.findRecentMinOutboundPrices(
 			departureCode, arrivalCode, departureAt, FlightDirection.OUTBOUND,
-			now, PageRequest.of(0, ROLLING_WINDOW));
+			now, PageRequest.of(0, ROLLING_WINDOW - 1));
 
 		Float priceChange1 = !recentObs.isEmpty()
 			? (float) (currentCheapestPrice - recentObs.get(0)) : null;
-		Float rollingStd3 = recentObs.size() >= 2
-			? computeStd(recentObs) : null;
-		Float priceVsRollingMean3 = !recentObs.isEmpty()
-			? currentCheapestPrice - computeMean(recentObs) : null;
+
+		List<Integer> rollingWindow = new ArrayList<>();
+		rollingWindow.add(currentCheapestPrice);
+		rollingWindow.addAll(recentObs);
+
+		Float rollingStd3 = rollingWindow.size() >= 3 ? computeStd(rollingWindow) : null;
+		Float priceVsRollingMean3 = rollingWindow.size() >= 3
+			? currentCheapestPrice - computeMean(rollingWindow) : null;
 
 		// 2-4: SerpAPI price_history (DB 저장값, 최근 N=5개, DESC → 역순으로 slope 계산)
 		List<Integer> histPricesDesc = priceHistoryRepository.findLatestHistoryPrices(
