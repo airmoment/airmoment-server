@@ -6,6 +6,8 @@ import com.github.airmoment.flight.domain.enums.AirportCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,9 +27,11 @@ public class Interest {
 	private Long id;
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private AirportCode departureCode;
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private AirportCode arrivalCode;
 
 	@Column(nullable = false)
