@@ -36,7 +36,7 @@ public class MemberService {
 			throw new AirmomentException(MemberErrorCode.DUPLICATE_EMAIL);
 		}
 
-		Member member = Member.of(request.email(), passwordEncoder.encode(request.password()));
+		Member member = Member.of(request.email(), passwordEncoder.encode(request.password()), request.name());
 		memberRepository.save(member);
 	}
 

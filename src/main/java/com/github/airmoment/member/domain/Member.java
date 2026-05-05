@@ -30,12 +30,16 @@ public class Member {
 	private String password;
 
 	@Column(nullable = false)
+	private String name;
+
+	@Column(nullable = false)
 	private String profileImage;
 
-	public static Member of(String email, String password) {
+	public static Member of(String email, String password, String name) {
 		Member member = new Member();
 		member.email = email;
 		member.password = password;
+		member.name = name;
 		member.profileImage = DEFAULT_PHOTO;
 		return member;
 	}
