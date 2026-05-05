@@ -39,13 +39,17 @@ public class Interest {
 	@Column(nullable = false)
 	private boolean isEmailNotificationEnabled;
 
-	public static Interest of(AirportCode departureCode, AirportCode arrivalCode, LocalDate departureAt, boolean isBookmarked, boolean isEmailNotificationEnabled) {
+	@Column(nullable = false)
+	private Long memberId;
+
+	public static Interest of(AirportCode departureCode, AirportCode arrivalCode, LocalDate departureAt, boolean isBookmarked, boolean isEmailNotificationEnabled, Long memberId) {
 		Interest interest = new Interest();
 		interest.departureCode = departureCode;
 		interest.arrivalCode = arrivalCode;
 		interest.departureAt = departureAt;
 		interest.isBookmarked = isBookmarked;
 		interest.isEmailNotificationEnabled = isEmailNotificationEnabled;
+		interest.memberId = memberId;
 		return interest;
 	}
 }
