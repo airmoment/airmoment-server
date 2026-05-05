@@ -13,7 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.airmoment.exception.FlightErrorCode;
+import com.github.airmoment.flight.exception.FlightErrorCode;
 import com.github.airmoment.flight.domain.enums.FlightSortOption;
 import com.github.airmoment.flight.dto.AIPredictionResponse;
 import com.github.airmoment.flight.dto.CachedFlightItem;

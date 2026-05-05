@@ -1,4 +1,4 @@
-package com.github.airmoment.exception;
+package com.github.airmoment.flight.exception;
 
 import org.springframework.http.HttpStatus;
 
