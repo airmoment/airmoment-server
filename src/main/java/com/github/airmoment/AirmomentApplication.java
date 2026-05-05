@@ -9,13 +9,15 @@ import com.github.airmoment.global.client.discord.DiscordProperties;
 import com.github.airmoment.global.client.fastapi.AIServerProperties;
 import com.github.airmoment.global.client.google.GoogleSheetsProperties;
 import com.github.airmoment.global.client.serpapi.SerpApiProperties;
+import com.github.airmoment.global.jwt.JwtProperties;
 
 @EnableScheduling
 @EnableConfigurationProperties({
 	SerpApiProperties.class,
 	DiscordProperties.class,
 	GoogleSheetsProperties.class,
-	AIServerProperties.class
+	AIServerProperties.class,
+	JwtProperties.class
 })
 @SpringBootApplication
 public class AirmomentApplication {
