@@ -6,7 +6,7 @@ import com.github.airmoment.flight.domain.enums.AirportCode;
 
 import jakarta.validation.constraints.NotNull;
 
-public record BookmarkCreateRequest (
+public record BookmarkCreateRequest(
 	@NotNull
 	AirportCode departureCode,
 	@NotNull
@@ -15,4 +15,5 @@ public record BookmarkCreateRequest (
 	LocalDate departureAt,
 	@NotNull
 	boolean nonstopOnly
-) {}
+) {
+}

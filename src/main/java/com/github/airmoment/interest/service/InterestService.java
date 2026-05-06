@@ -13,7 +13,6 @@ import com.github.airmoment.global.exception.AirmomentException;
 import com.github.airmoment.interest.domain.Interest;
 import com.github.airmoment.interest.dto.BookmarkCreateRequest;
 import com.github.airmoment.interest.dto.BookmarkCreateResponse;
-import com.github.airmoment.interest.dto.BookmarkDto;
 import com.github.airmoment.interest.dto.EmailNotificationRequest;
 import com.github.airmoment.interest.dto.InterestDto;
 import com.github.airmoment.interest.exception.InterestErrorCode;

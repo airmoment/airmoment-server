@@ -27,11 +27,10 @@ public class InterestController {
 
 	private final InterestService interestService;
 
-
 	@PostMapping("/bookmark")
 	public ResponseEntity<SuccessResponse<BookmarkCreateResponse>> createBookmark(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@Valid  @RequestBody BookmarkCreateRequest request
+		@Valid @RequestBody BookmarkCreateRequest request
 	) {
 		Long memberId = Long.parseLong(userDetails.getUsername());
 		BookmarkCreateResponse response = interestService.createBookmark(memberId, request);
