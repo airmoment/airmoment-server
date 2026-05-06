@@ -15,6 +15,8 @@ public enum InterestErrorCode implements BaseCode {
 	 */
 	INTEREST_ALREADY_BOOKMARKED(HttpStatus.BAD_REQUEST, "이미 관심노선 설정이 되어있습니다."),
 	INTEREST_ALREADY_UNBOOKMARKED(HttpStatus.BAD_REQUEST, "이미 관심노선 설정이 해제되어있습니다."),
+	EMAIL_NOTIFICATION_ALREADY_ENABLED(HttpStatus.BAD_REQUEST, "이미 이메일 수신 설정이 되어있습니다."),
+	EMAIL_NOTIFICATION_ALREADY_DISABLED(HttpStatus.BAD_REQUEST, "이미 이메일 수신 설정이 해제되어있습니다."),
 
 	/*
 	403 FORBIDDEN
