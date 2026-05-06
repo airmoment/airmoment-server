@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.airmoment.global.response.dto.SuccessResponse;
 import com.github.airmoment.interest.dto.BookmarkCreateRequest;
 import com.github.airmoment.interest.dto.BookmarkCreateResponse;
+import com.github.airmoment.interest.dto.EmailNotificationRequest;
 import com.github.airmoment.interest.exception.InterestSuccessCode;
 import com.github.airmoment.interest.service.InterestService;
 
@@ -35,8 +36,7 @@ public class InterestController {
 		Long memberId = Long.parseLong(userDetails.getUsername());
 		BookmarkCreateResponse response = interestService.createBookmark(memberId, request);
 
-		return ResponseEntity.ok()
-				.body(SuccessResponse.of(InterestSuccessCode.BOOKMARK_CREATED, response));
+		return ResponseEntity.ok(SuccessResponse.of(InterestSuccessCode.BOOKMARK_CREATED, response));
 	}
 
 	@DeleteMapping("/bookmark/{interestId}")
@@ -47,7 +47,28 @@ public class InterestController {
 		Long memberId = Long.parseLong(userDetails.getUsername());
 		interestService.deleteBookmark(memberId, interestId);
 
-		return ResponseEntity.ok()
-			.body(SuccessResponse.of(InterestSuccessCode.BOOKMARK_DELETED));
+		return ResponseEntity.ok(SuccessResponse.of(InterestSuccessCode.BOOKMARK_DELETED));
+	}
+
+	@PostMapping("/email-notification")
+	public ResponseEntity<SuccessResponse<BookmarkCreateResponse>> enableEmailNotification(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@Valid @RequestBody EmailNotificationRequest request
+	) {
+		Long memberId = Long.parseLong(userDetails.getUsername());
+		BookmarkCreateResponse response = interestService.enableEmailNotification(memberId, request);
+
+		return ResponseEntity.ok(SuccessResponse.of(InterestSuccessCode.EMAIL_NOTIFICATION_ENABLED, response));
+	}
+
+	@DeleteMapping("/email-notification/{interestId}")
+	public ResponseEntity<SuccessResponse<Void>> disableEmailNotification(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable Long interestId
+	) {
+		Long memberId = Long.parseLong(userDetails.getUsername());
+		interestService.disableEmailNotification(memberId, interestId);
+
+		return ResponseEntity.ok(SuccessResponse.of(InterestSuccessCode.EMAIL_NOTIFICATION_DISABLED));
 	}
 }

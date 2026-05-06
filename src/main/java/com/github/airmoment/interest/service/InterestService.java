@@ -1,6 +1,7 @@
 package com.github.airmoment.interest.service;
 
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,6 +14,8 @@ import com.github.airmoment.interest.domain.Interest;
 import com.github.airmoment.interest.dto.BookmarkCreateRequest;
 import com.github.airmoment.interest.dto.BookmarkCreateResponse;
 import com.github.airmoment.interest.dto.BookmarkDto;
+import com.github.airmoment.interest.dto.EmailNotificationRequest;
+import com.github.airmoment.interest.dto.InterestDto;
 import com.github.airmoment.interest.exception.InterestErrorCode;
 import com.github.airmoment.interest.repository.InterestRepository;
 
@@ -54,6 +57,56 @@ public class InterestService {
 		interest.updateAsUnbookmarked();
 	}
 
+	@Transactional
+	public BookmarkCreateResponse enableEmailNotification(Long memberId, EmailNotificationRequest request) {
+		Interest interest = createOrGetInterest(memberId, request.departureCode(), request.arrivalCode(),
+			request.departureAt(), request.nonstopOnly());
+
+		if (Boolean.TRUE.equals(interest.getIsEmailNotificationEnabled())) {
+			throw new AirmomentException(InterestErrorCode.EMAIL_NOTIFICATION_ALREADY_ENABLED);
+		}
+
+		interest.updateAsEmailNotificationEnabled();
+
+		return new BookmarkCreateResponse(interest.getId());
+	}
+
+	@Transactional
+	public void disableEmailNotification(Long memberId, Long interestId) {
+		Interest interest = interestRepository.findById(interestId)
+			.orElseThrow(() -> new AirmomentException(InterestErrorCode.INTEREST_NOT_FOUND));
+
+		if (!Objects.equals(interest.getMemberId(), memberId)) {
+			throw new AirmomentException(InterestErrorCode.ACCESS_DENIED);
+		}
+
+		if (!Boolean.TRUE.equals(interest.getIsEmailNotificationEnabled())) {
+			throw new AirmomentException(InterestErrorCode.EMAIL_NOTIFICATION_ALREADY_DISABLED);
+		}
+
+		interest.updateAsEmailNotificationDisabled();
+	}
+
+	@Transactional(readOnly = true)
+	public List<InterestDto> getInterests(Long memberId) {
+		LinkedHashMap<Long, Interest> merged = new LinkedHashMap<>();
+
+		getBookmarkedInterests(memberId).forEach(i -> merged.put(i.getId(), i));
+		getEmailNotificationInterests(memberId).forEach(i -> merged.putIfAbsent(i.getId(), i));
+
+		return merged.values().stream()
+			.map(InterestDto::from)
+			.toList();
+	}
+
+	private List<Interest> getBookmarkedInterests(Long memberId) {
+		return interestRepository.findAllByMemberIdAndIsBookmarkedTrueOrderByCreatedAtDesc(memberId);
+	}
+
+	private List<Interest> getEmailNotificationInterests(Long memberId) {
+		return interestRepository.findAllByMemberIdAndIsEmailNotificationEnabledTrueOrderByCreatedAtDesc(memberId);
+	}
+
 	private Interest createOrGetInterest(
 		Long memberId,
 		AirportCode departureCode,
@@ -66,19 +119,5 @@ public class InterestService {
 				memberId, departureCode, arrivalCode, departureAt, nonstopOnly)
 			.orElseGet(() -> interestRepository.save(
 				Interest.of(departureCode, arrivalCode, departureAt, nonstopOnly, memberId)));
-	}
-
-	private List<BookmarkDto> getBookmarksOrderByDesc(Long memberId) {
-		return interestRepository.findAllByMemberIdAndIsBookmarkedTrueOrderByCreatedAtDesc(memberId)
-			.stream()
-			.map(interest -> BookmarkDto.from(
-				interest.getDepartureCode(),
-				interest.getArrivalCode(),
-				interest.getDepartureAt(),
-				interest.isNonstopOnly(),
-				Boolean.TRUE.equals(interest.getIsBookmarked()),
-				Boolean.TRUE.equals(interest.getIsEmailNotificationEnabled())
-			))
-			.toList();
 	}
 }
