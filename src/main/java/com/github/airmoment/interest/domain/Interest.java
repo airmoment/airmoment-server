@@ -1,6 +1,7 @@
 package com.github.airmoment.interest.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.github.airmoment.flight.domain.enums.AirportCode;
 
@@ -38,22 +39,49 @@ public class Interest {
 	private LocalDate departureAt;
 
 	@Column(nullable = false)
-	private boolean isBookmarked;
+	private boolean nonstopOnly;
 
 	@Column(nullable = false)
-	private boolean isEmailNotificationEnabled;
+	private LocalDateTime createdAt;
+
+	@Column(nullable = false)
+	private Boolean isBookmarked = false;
+
+	@Column(nullable = false)
+	private Boolean isEmailNotificationEnabled = false;
 
 	@Column(nullable = false)
 	private Long memberId;
 
-	public static Interest of(AirportCode departureCode, AirportCode arrivalCode, LocalDate departureAt, boolean isBookmarked, boolean isEmailNotificationEnabled, Long memberId) {
+	public static Interest of(
+		AirportCode departureCode,
+		AirportCode arrivalCode,
+		LocalDate departureAt,
+		boolean nonstopOnly,
+		Long memberId) {
 		Interest interest = new Interest();
 		interest.departureCode = departureCode;
 		interest.arrivalCode = arrivalCode;
 		interest.departureAt = departureAt;
-		interest.isBookmarked = isBookmarked;
-		interest.isEmailNotificationEnabled = isEmailNotificationEnabled;
+		interest.nonstopOnly = nonstopOnly;
+		interest.createdAt = LocalDateTime.now();
 		interest.memberId = memberId;
 		return interest;
+	}
+
+	public void updateAsBookmarked() {
+		this.isBookmarked = true;
+	}
+
+	public void updateAsEmailNotificationEnabled() {
+		this.isEmailNotificationEnabled = true;
+	}
+
+	public void updateAsUnbookmarked() {
+		this.isBookmarked = false;
+	}
+
+	public void updateAsEmailNotificationDisabled() {
+		this.isEmailNotificationEnabled = false;
 	}
 }
