@@ -28,7 +28,7 @@ public class InterestService {
 
 	@Transactional
 	public BookmarkCreateResponse createBookmark(Long memberId, BookmarkCreateRequest request) {
-		Interest interest = createOrGetInterest(memberId, request.departureCode(), request.arrivalCode(),
+		Interest interest = findOrBuildInterest(memberId, request.departureCode(), request.arrivalCode(),
 			request.departureAt(), request.nonstopOnly());
 
 		if (Boolean.TRUE.equals(interest.getIsBookmarked())) {
@@ -37,7 +37,7 @@ public class InterestService {
 
 		interest.updateAsBookmarked();
 
-		return new BookmarkCreateResponse(interest.getId());
+		return new BookmarkCreateResponse(interestRepository.save(interest).getId());
 	}
 
 	@Transactional
@@ -58,7 +58,7 @@ public class InterestService {
 
 	@Transactional
 	public BookmarkCreateResponse enableEmailNotification(Long memberId, EmailNotificationRequest request) {
-		Interest interest = createOrGetInterest(memberId, request.departureCode(), request.arrivalCode(),
+		Interest interest = findOrBuildInterest(memberId, request.departureCode(), request.arrivalCode(),
 			request.departureAt(), request.nonstopOnly());
 
 		if (Boolean.TRUE.equals(interest.getIsEmailNotificationEnabled())) {
@@ -67,7 +67,7 @@ public class InterestService {
 
 		interest.updateAsEmailNotificationEnabled();
 
-		return new BookmarkCreateResponse(interest.getId());
+		return new BookmarkCreateResponse(interestRepository.save(interest).getId());
 	}
 
 	@Transactional
@@ -106,7 +106,7 @@ public class InterestService {
 		return interestRepository.findAllByMemberIdAndIsEmailNotificationEnabledTrueOrderByCreatedAtDesc(memberId);
 	}
 
-	private Interest createOrGetInterest(
+	private Interest findOrBuildInterest(
 		Long memberId,
 		AirportCode departureCode,
 		AirportCode arrivalCode,
@@ -116,7 +116,6 @@ public class InterestService {
 		return interestRepository
 			.findByMemberIdAndDepartureCodeAndArrivalCodeAndDepartureAtAndNonstopOnly(
 				memberId, departureCode, arrivalCode, departureAt, nonstopOnly)
-			.orElseGet(() -> interestRepository.save(
-				Interest.of(departureCode, arrivalCode, departureAt, nonstopOnly, memberId)));
+			.orElseGet(() -> Interest.of(departureCode, arrivalCode, departureAt, nonstopOnly, memberId));
 	}
 }

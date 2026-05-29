@@ -44,11 +44,11 @@ public class Interest {
 	@Column(nullable = false)
 	private LocalDateTime createdAt;
 
-	@Column(nullable = true)
-	private Boolean isBookmarked;
+	@Column(nullable = false)
+	private Boolean isBookmarked = false;
 
-	@Column(nullable = true)
-	private Boolean isEmailNotificationEnabled;
+	@Column(nullable = false)
+	private Boolean isEmailNotificationEnabled = false;
 
 	@Column(nullable = false)
 	private Long memberId;
