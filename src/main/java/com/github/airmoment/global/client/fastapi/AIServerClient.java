@@ -7,6 +7,8 @@ import org.springframework.web.client.RestClient;
 
 import com.github.airmoment.flight.dto.AIPredictionResponse;
 import com.github.airmoment.flight.dto.FlightFeatureVector;
+import com.github.airmoment.flight.dto.ForecastDto;
+import com.github.airmoment.flight.dto.ForecastRequest;
 
 @Component
 public class AIServerClient {
@@ -30,5 +32,15 @@ public class AIServerClient {
 			.body(featureVector)
 			.retrieve()
 			.body(AIPredictionResponse.class);
+	}
+
+	public ForecastDto forecast(ForecastRequest request) {
+		return restClient.post()
+			.uri(aiServerProperties.baseUrl() + "/forecastPrice")
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
+			.body(request)
+			.retrieve()
+			.body(ForecastDto.class);
 	}
 }
