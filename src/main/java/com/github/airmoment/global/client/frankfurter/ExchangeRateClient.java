@@ -20,15 +20,23 @@ public class ExchangeRateClient {
 	private final FrankfurterProperties properties;
 
 	public FrankfurterResponse fetchLatest() {
+		return fetchLatest(FROM);
+	}
+
+	public FrankfurterResponse fetchLatest(String from) {
 		return restClient.get()
-			.uri(properties.baseUrl() + "/latest?from={from}&to={to}", FROM, TO)
+			.uri(properties.baseUrl() + "/latest?from={from}&to={to}", from, TO)
 			.retrieve()
 			.body(FrankfurterResponse.class);
 	}
 
 	public FrankfurterResponse fetchByDate(LocalDate date) {
+		return fetchByDate(date, FROM);
+	}
+
+	public FrankfurterResponse fetchByDate(LocalDate date, String from) {
 		return restClient.get()
-			.uri(properties.baseUrl() + "/{date}?from={from}&to={to}", date, FROM, TO)
+			.uri(properties.baseUrl() + "/{date}?from={from}&to={to}", date, from, TO)
 			.retrieve()
 			.body(FrankfurterResponse.class);
 	}
