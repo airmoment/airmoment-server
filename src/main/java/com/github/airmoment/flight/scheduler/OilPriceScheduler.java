@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OilPriceScheduler {
 
 	private static final String REDIS_KEY = "oil:price:latest";
+	private static final String REDIS_KEY_7DAYS_AGO = "oil:price:7days-ago";
 	private static final int FETCH_RANGE_DAYS = 7;
 
 	private final OilPriceClient oilPriceClient;
@@ -45,8 +46,14 @@ public class OilPriceScheduler {
 				.max(Comparator.comparing(DailyOilPrice::date))
 				.orElseThrow();
 
+			DailyOilPrice sevenDaysAgo = prices.stream()
+				.min(Comparator.comparing(DailyOilPrice::date))
+				.orElseThrow();
+
 			redisTemplate.opsForValue().set(REDIS_KEY, objectMapper.writeValueAsString(latest));
-			log.info("유가 데이터 업데이트 완료 - date: {}, price: {}", latest.date(), latest.price());
+			redisTemplate.opsForValue().set(REDIS_KEY_7DAYS_AGO, objectMapper.writeValueAsString(sevenDaysAgo));
+			log.info("유가 데이터 업데이트 완료 - latest: {} ({}), 7일전: {} ({})",
+				latest.price(), latest.date(), sevenDaysAgo.price(), sevenDaysAgo.date());
 
 		} catch (JsonProcessingException e) {
 			log.error("유가 데이터 직렬화 실패: {}", e.getMessage());
