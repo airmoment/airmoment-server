@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.github.airmoment.flight.domain.enums.FlightSortOption;
 import com.github.airmoment.flight.dto.FlightListResponse;
+import com.github.airmoment.flight.dto.GraphResponse;
 import com.github.airmoment.flight.scheduler.FlightDataScheduler;
 import com.github.airmoment.flight.scheduler.FlightReportScheduler;
+import com.github.airmoment.flight.service.FlightForecastService;
 import com.github.airmoment.flight.service.FlightSearchService;
 import com.github.airmoment.global.response.dto.SuccessResponse;
 
@@ -27,6 +29,7 @@ public class FlightController {
 	private final FlightDataScheduler flightDataScheduler;
 	private final FlightReportScheduler flightReportScheduler;
 	private final FlightSearchService flightSearchService;
+	private final FlightForecastService flightForecastService;
 
 	@GetMapping
 	public ResponseEntity<SuccessResponse<FlightListResponse>> searchFlights(
@@ -40,6 +43,17 @@ public class FlightController {
 		FlightListResponse response = flightSearchService.searchFlights(
 			departureCode, arrivalCode, departureAt, sort, nonstopOnly, maxPrice);
 		return ResponseEntity.ok(new SuccessResponse<>(200, "항공권 조회 성공", response));
+	}
+
+	@GetMapping("/forecast")
+	public ResponseEntity<SuccessResponse<GraphResponse>> forecastPrice(
+		@RequestParam String departureCode,
+		@RequestParam String arrivalCode,
+		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureAt
+	) {
+		var cached = flightSearchService.getCachedOrFetchResult(departureCode, arrivalCode, departureAt);
+		GraphResponse response = flightForecastService.forecast(departureCode, arrivalCode, departureAt, cached);
+		return ResponseEntity.ok(new SuccessResponse<>(200, "가격 예측 성공", response));
 	}
 
 	@PostMapping("/dataScheduler")

@@ -22,6 +22,7 @@ import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.dto.FlightItemResponse;
 import com.github.airmoment.flight.dto.FlightListResponse;
 import com.github.airmoment.flight.dto.FlightPredictDto;
+import com.github.airmoment.flight.dto.GraphResponse;
 import com.github.airmoment.global.client.fastapi.AIServerClient;
 import com.github.airmoment.global.client.serpapi.SerpApiClient;
 import com.github.airmoment.global.client.serpapi.dto.FlightOfferDto;
@@ -46,6 +47,7 @@ public class FlightSearchService {
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
 	private final FlightFeatureService flightFeatureService;
+	private final FlightForecastService flightForecastService;
 	private final AIServerClient aiServerClient;
 
 	public FlightListResponse searchFlights(
@@ -56,14 +58,7 @@ public class FlightSearchService {
 		Boolean nonstopOnly,
 		Integer maxPrice
 	) {
-		String cacheKey = String.format(CACHE_KEY_FORMAT, departureCode, arrivalCode, departureAt);
-
-		CachedFlightResult cached = getFromCache(cacheKey);
-		if (cached == null) {
-			FlightSearchResponse response = serpApiClient.fetchFlights(departureCode, arrivalCode, departureAt.toString());
-			cached = buildCachedResult(response);
-			saveToCache(cacheKey, cached);
-		}
+		CachedFlightResult cached = getCachedOrFetchResult(departureCode, arrivalCode, departureAt);
 
 		FlightSortOption effectiveSort = sort != null ? sort : FlightSortOption.DEPARTURE_TIME_ASC;
 
@@ -98,13 +93,31 @@ public class FlightSearchService {
 			log.error("AI 서버의 예측 API를 호출이 실패하였습니다.\nerror:{}", e.getMessage());
 		}
 
-		if (prediction != null) {
-			FlightPredictDto predictDto = new FlightPredictDto(prediction.decision());
-			return FlightListResponse.of(predictDto, result);
-		}
-		else {
+		if (prediction == null) {
 			throw new AirmomentException(FlightErrorCode.INTERNAL_SERVER_ERROR);
 		}
+
+		FlightPredictDto predictDto = new FlightPredictDto(prediction.decision());
+
+		GraphResponse priceForecast = null;
+		try {
+			priceForecast = flightForecastService.forecast(departureCode, arrivalCode, departureAt, predictionInput);
+		} catch (Exception e) {
+			log.error("가격 예측 그래프 생성 실패: {}", e.getMessage());
+		}
+
+		return FlightListResponse.of(predictDto, result, priceForecast);
+	}
+
+	public CachedFlightResult getCachedOrFetchResult(String departureCode, String arrivalCode, LocalDate departureAt) {
+		String cacheKey = String.format(CACHE_KEY_FORMAT, departureCode, arrivalCode, departureAt);
+		CachedFlightResult cached = getFromCache(cacheKey);
+		if (cached == null) {
+			FlightSearchResponse response = serpApiClient.fetchFlights(departureCode, arrivalCode, departureAt.toString());
+			cached = buildCachedResult(response);
+			saveToCache(cacheKey, cached);
+		}
+		return cached;
 	}
 
 	private AIPredictionResponse getPrediction(FlightFeatureVector featureVector) {
