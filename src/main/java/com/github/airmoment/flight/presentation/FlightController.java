@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.airmoment.flight.domain.enums.FlightSortOption;
-import com.github.airmoment.flight.dto.FlightListResponse;
+import com.github.airmoment.flight.dto.FlightSearchResponse;
 import com.github.airmoment.flight.dto.GraphResponse;
 import com.github.airmoment.flight.scheduler.FlightDataScheduler;
 import com.github.airmoment.flight.scheduler.FlightReportScheduler;
@@ -32,7 +32,7 @@ public class FlightController {
 	private final FlightForecastService flightForecastService;
 
 	@GetMapping
-	public ResponseEntity<SuccessResponse<FlightListResponse>> searchFlights(
+	public ResponseEntity<SuccessResponse<FlightSearchResponse>> searchFlights(
 		@RequestParam String departureCode,
 		@RequestParam String arrivalCode,
 		@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureAt,
@@ -40,7 +40,7 @@ public class FlightController {
 		@RequestParam(required = false) Boolean nonstopOnly,
 		@RequestParam(required = false) Integer maxPrice
 	) {
-		FlightListResponse response = flightSearchService.searchFlights(
+		FlightSearchResponse response = flightSearchService.searchFlights(
 			departureCode, arrivalCode, departureAt, sort, nonstopOnly, maxPrice);
 		return ResponseEntity.ok(new SuccessResponse<>(200, "항공권 조회 성공", response));
 	}
