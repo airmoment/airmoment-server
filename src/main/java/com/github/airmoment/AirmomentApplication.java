@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.github.airmoment.global.client.discord.DiscordProperties;
+import com.github.airmoment.global.client.eia.EiaProperties;
 import com.github.airmoment.global.client.fastapi.AIServerProperties;
 import com.github.airmoment.global.client.google.GoogleSheetsProperties;
 import com.github.airmoment.global.client.serpapi.SerpApiProperties;
@@ -17,7 +18,8 @@ import com.github.airmoment.global.jwt.JwtProperties;
 	DiscordProperties.class,
 	GoogleSheetsProperties.class,
 	AIServerProperties.class,
-	JwtProperties.class
+	JwtProperties.class,
+	EiaProperties.class
 })
 @SpringBootApplication
 public class AirmomentApplication {
