@@ -9,6 +9,7 @@ import com.github.airmoment.flight.dto.GraphResponse;
 import com.github.airmoment.flight.dto.PredictionPoint;
 
 public record MyPageInterestDto(
+	Long interestId,
 	String departureCode,
 	String arrivalCode,
 	LocalDate departureAt,
@@ -21,6 +22,7 @@ public record MyPageInterestDto(
 ) {
 	public static MyPageInterestDto of(InterestDto interest, GraphResponse graphResponse) {
 		return new MyPageInterestDto(
+			interest.interestId(),
 			interest.departureCode().name(),
 			interest.arrivalCode().name(),
 			interest.departureAt(),
