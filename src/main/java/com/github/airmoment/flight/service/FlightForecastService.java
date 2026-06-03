@@ -21,7 +21,6 @@ import com.github.airmoment.flight.dto.ForecastDto;
 import com.github.airmoment.flight.dto.ForecastRequest;
 import com.github.airmoment.flight.dto.GraphResponse;
 import com.github.airmoment.flight.repository.FlightOfferRepository;
-import com.github.airmoment.flight.repository.HolidayRepository;
 import com.github.airmoment.flight.scheduler.OilPriceScheduler;
 import com.github.airmoment.global.client.fastapi.AIServerClient;
 import com.github.airmoment.global.client.frankfurter.ExchangeRateClient;
@@ -51,7 +50,6 @@ public class FlightForecastService {
 
 	private final FlightFeatureService flightFeatureService;
 	private final FlightOfferRepository flightOfferRepository;
-	private final HolidayRepository holidayRepository;
 	private final OilPriceScheduler oilPriceScheduler;
 	private final ExchangeRateClient exchangeRateClient;
 	private final RedisTemplate<String, String> redisTemplate;
@@ -61,18 +59,6 @@ public class FlightForecastService {
 	public GraphResponse forecast(String departureCode, String arrivalCode, LocalDate departureAt, CachedFlightResult cached) {
 		LocalDateTime now = LocalDateTime.now(SYSTEM_ZONE);
 		FlightFeatureVector fv = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, cached);
-
-		// outboundMonth, outboundDayOfWeek
-		int outboundMonth = departureAt.getMonthValue();
-		String outboundDayOfWeek = departureAt.getDayOfWeek().name().substring(0, 3);
-
-		// isPeakSeason: 7~8월, 12~1월
-		int isPeakSeason = (outboundMonth >= 7 && outboundMonth <= 8)
-			|| outboundMonth == 12 || outboundMonth == 1 ? 1 : 0;
-
-		// isHolidayNear: 출발일 기준 ±3일 내 공휴일
-		int isHolidayNear = holidayRepository.existsByDateBetween(
-			departureAt.minusDays(3), departureAt.plusDays(3)) ? 1 : 0;
 
 		// lag1Price: 1일 전 동일 노선 최저가
 		List<Integer> lag1Obs = flightOfferRepository.findRecentMinOutboundPrices(
@@ -100,12 +86,12 @@ public class FlightForecastService {
 			fv.routeId(),
 			fv.currentCheapestPrice(),
 			fv.daysToDeparture(),
-			outboundMonth,
+			fv.outboundMonth(),
 			fv.searchedDayOfWeek(),
-			outboundDayOfWeek,
+			fv.outboundDayOfWeek(),
 			fv.isWeekendSearch() ? 1 : 0,
-			isPeakSeason,
-			isHolidayNear,
+			fv.isPeakSeason(),
+			fv.isHolidayNear(),
 			fv.isLongHaul() ? 1 : 0,
 			fv.offerCount(),
 			fv.nonstopRatio(),

@@ -21,6 +21,7 @@ import com.github.airmoment.flight.dto.CachedFlightResult;
 import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.repository.FlightOfferRepository;
 import com.github.airmoment.flight.repository.FlightPriceHistoryRepository;
+import com.github.airmoment.flight.repository.HolidayRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +43,7 @@ public class FlightFeatureService {
 
 	private final FlightOfferRepository flightOfferRepository;
 	private final FlightPriceHistoryRepository priceHistoryRepository;
+	private final HolidayRepository holidayRepository;
 
 	public FlightFeatureVector calculate(
 		String departureCode,
@@ -55,6 +57,13 @@ public class FlightFeatureService {
 		int daysToDeparture = (int) ChronoUnit.DAYS.between(now.toLocalDate(), departureAt);
 		boolean isWeekendSearch = searchedDayOfWeek.equals("SAT") || searchedDayOfWeek.equals("SUN");
 		boolean isLongHaul = LONG_HAUL_ROUTES.contains(routeId);
+
+		int outboundMonth = departureAt.getMonthValue();
+		String outboundDayOfWeek = departureAt.getDayOfWeek().name().substring(0, 3);
+		int isPeakSeason = (outboundMonth >= 7 && outboundMonth <= 8)
+			|| outboundMonth == 12 || outboundMonth == 1 ? 1 : 0;
+		int isHolidayNear = holidayRepository.existsByDateBetween(
+			departureAt.minusDays(3), departureAt.plusDays(3)) ? 1 : 0;
 
 		// 2-2: 실시간 검색 결과에서 집계
 		List<CachedFlightItem> flights = cached.flights();
@@ -112,7 +121,9 @@ public class FlightFeatureService {
 			? currentCheapestPrice / computeMean(histPrices) : null;
 
 		return new FlightFeatureVector(
-			routeId, departureCode, arrivalCode, departureAt.toString(), searchedDayOfWeek, daysToDeparture, isWeekendSearch, isLongHaul,
+			routeId, departureCode, arrivalCode, departureAt.toString(),
+			outboundMonth, outboundDayOfWeek, isPeakSeason, isHolidayNear,
+			searchedDayOfWeek, daysToDeparture, isWeekendSearch, isLongHaul,
 			offerCount, nonstopRatio, cheapestNonstopPrice, cheapestOfferHasLayover, currentCheapestPrice,
 			currGapToTypicalMin, currGapToTypicalMax,
 			histRecentStd, histRecentSlope, currVsHistMean,

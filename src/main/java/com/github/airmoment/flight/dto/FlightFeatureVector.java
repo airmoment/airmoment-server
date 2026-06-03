@@ -14,6 +14,10 @@ public record FlightFeatureVector(
 	@NotNull
 	String arrivalAirportCode,
 	String outboundDate,
+	Integer outboundMonth,
+	String outboundDayOfWeek,
+	Integer isPeakSeason,
+	Integer isHolidayNear,
 	@NotNull
 	String searchedDayOfWeek,
 	@NotNull
