@@ -75,14 +75,8 @@ public class FlightSearchService {
 			return FlightSearchResponse.of(null, null);
 		}
 
-		CachedFlightResult predictionInput = new CachedFlightResult(
-			filteredFlights,
-			cached.typicalPriceMin(),
-			cached.typicalPriceMax()
-		);
-
 		// 입력값, 항공권 조회값을 바탕으로 featureVector 계산
-		FlightFeatureVector featureVector = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, predictionInput);
+		FlightFeatureVector featureVector = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, cached);
 		log.info("입력한 조건의 항공권 결과에 대한 feature vector 계산이 완료되었습니다. \n****FeatureVector****\n {}", featureVector);
 
 		AIPredictionResponse prediction = null;
@@ -100,7 +94,7 @@ public class FlightSearchService {
 
 		GraphResponse priceForecast = null;
 		try {
-			priceForecast = flightForecastService.forecast(departureCode, arrivalCode, departureAt, predictionInput);
+			priceForecast = flightForecastService.forecast(departureCode, arrivalCode, departureAt, cached);
 		} catch (Exception e) {
 			log.error("가격 예측 그래프 생성 실패: {}", e.getMessage());
 		}
