@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.github.airmoment.flight.domain.enums.AirportCode;
+import com.github.airmoment.flight.service.PredictionCacheService;
 import com.github.airmoment.global.exception.AirmomentException;
 import com.github.airmoment.interest.domain.Interest;
 import com.github.airmoment.interest.dto.BookmarkCreateRequest;
@@ -19,12 +20,15 @@ import com.github.airmoment.interest.exception.InterestErrorCode;
 import com.github.airmoment.interest.repository.InterestRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InterestService {
 
 	private final InterestRepository interestRepository;
+	private final PredictionCacheService predictionCacheService;
 
 	@Transactional
 	public BookmarkCreateResponse createBookmark(Long memberId, BookmarkCreateRequest request) {
@@ -66,8 +70,15 @@ public class InterestService {
 		}
 
 		interest.updateAsEmailNotificationEnabled();
+		Interest saved = interestRepository.save(interest);
 
-		return new BookmarkCreateResponse(interestRepository.save(interest).getId());
+		try {
+			predictionCacheService.saveInitialPrediction(memberId, saved);
+		} catch (Exception e) {
+			log.warn("초기 예측 Redis 저장 실패 - memberId: {}, error: {}", memberId, e.getMessage());
+		}
+
+		return new BookmarkCreateResponse(saved.getId());
 	}
 
 	@Transactional
@@ -84,6 +95,7 @@ public class InterestService {
 		}
 
 		interest.updateAsEmailNotificationDisabled();
+		predictionCacheService.deletePrediction(memberId, interest);
 	}
 
 	@Transactional(readOnly = true)
