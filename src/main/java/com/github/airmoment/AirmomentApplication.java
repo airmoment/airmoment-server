@@ -9,6 +9,7 @@ import com.github.airmoment.global.client.discord.DiscordProperties;
 import com.github.airmoment.global.client.eia.EiaProperties;
 import com.github.airmoment.global.client.fastapi.AIServerProperties;
 import com.github.airmoment.global.client.frankfurter.FrankfurterProperties;
+import com.github.airmoment.global.client.gmail.GmailProperties;
 import com.github.airmoment.global.client.google.GoogleSheetsProperties;
 import com.github.airmoment.global.client.serpapi.SerpApiProperties;
 import com.github.airmoment.global.jwt.JwtProperties;
@@ -21,7 +22,8 @@ import com.github.airmoment.global.jwt.JwtProperties;
 	AIServerProperties.class,
 	JwtProperties.class,
 	EiaProperties.class,
-	FrankfurterProperties.class
+	FrankfurterProperties.class,
+	GmailProperties.class
 })
 @SpringBootApplication
 public class AirmomentApplication {

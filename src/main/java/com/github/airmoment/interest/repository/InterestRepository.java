@@ -15,6 +15,8 @@ public interface InterestRepository extends JpaRepository<Interest, Long> {
 
 	List<Interest> findAllByMemberIdAndIsEmailNotificationEnabledTrueOrderByCreatedAtDesc(Long memberId);
 
+	List<Interest> findAllByIsEmailNotificationEnabledTrue();
+
 	Optional<Interest> findByMemberIdAndDepartureCodeAndArrivalCodeAndDepartureAtAndNonstopOnly(
 		Long memberId, AirportCode departureCode, AirportCode arrivalCode,
 		LocalDate departureAt, boolean nonstopOnly);
