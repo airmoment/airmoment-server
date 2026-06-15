@@ -59,6 +59,16 @@ public class FlightForecastService {
 	private final AIServerClient aiServerClient;
 
 	public GraphResponse forecast(String departureCode, String arrivalCode, LocalDate departureAt, CachedFlightResult cached) {
+		ForecastRequest request = buildForecastRequest(departureCode, arrivalCode, departureAt, cached);
+		log.info("ForecastRequest 생성 완료 - route: {}, departureAt: {}", request.routeId(), departureAt);
+		ForecastDto dto = aiServerClient.forecast(request);
+		return GraphResponse.from(request.routeId(), request.daysToDeparture(), dto);
+	}
+
+	/**
+	 * 가격 예측/설명 요청에 공통으로 쓰이는 ForecastRequest 를 생성한다.
+	 */
+	public ForecastRequest buildForecastRequest(String departureCode, String arrivalCode, LocalDate departureAt, CachedFlightResult cached) {
 		LocalDateTime now = LocalDateTime.now(SYSTEM_ZONE);
 		FlightFeatureVector fv = flightFeatureService.calculate(departureCode, arrivalCode, departureAt, cached);
 
@@ -126,9 +136,7 @@ public class FlightForecastService {
 			arrFxChange7d
 		);
 
-		log.info("ForecastRequest 생성 완료 - route: {}, departureAt: {}", fv.routeId(), departureAt);
-		ForecastDto dto = aiServerClient.forecast(request);
-		return GraphResponse.from(fv.routeId(), fv.daysToDeparture(), dto);
+		return request;
 	}
 
 	private String computePriceLevel(int currentPrice, Integer typicalMin, Integer typicalMax) {
