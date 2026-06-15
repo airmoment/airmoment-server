@@ -30,13 +30,15 @@ public class FlightExplainService {
 
 	private static final String SYSTEM_PROMPT = """
 		너는 항공권 가격 예측 결과를 사용자에게 설명해주는 도우미야.
-		아래에 가격 예측 방향(direction)과 예측 중앙값 가격(q50),
+		아래에 가격 예측 방향(direction)과 절감/추가부담 예상액(KRW),
 		모델이 그렇게 판단한 근거 목록(reasons),
 		그리고 참고용으로 예측에 쓰인 피처(features)와 현재 조회된 항공권 목록(flights)이 주어져.
 
 		각 근거를 자연스러운 한국어 문장으로 다듬어줘.
 		가능하면 features 와 flights 의 구체적인 수치(가격, 항공사, 소요시간 등)를 활용해
 		근거를 더 구체적이고 설득력 있게 만들어줘.
+		
+		또한, 가격 예측 방향과, 생성되는 근거의 방향이 align되도록 해줘.
 
 		규칙:
 		- features 와 flights 에 실제로 있는 정보만 활용하고, 없는 사실을 새로 지어내지 마.
@@ -90,7 +92,7 @@ public class FlightExplainService {
 			.system(SYSTEM_PROMPT)
 			.user(u -> u.text("""
 				방향: {direction}
-				예측 중앙값 가격: {q50}원
+				절감/추가부담 예상액(KRW): {direction_amount}원
 
 				근거 목록:
 				{reasons}
@@ -102,7 +104,7 @@ public class FlightExplainService {
 				{flights}
 				""")
 				.param("direction", toKorean(raw.direction()))
-				.param("q50", raw.q50() != null ? String.valueOf(raw.q50()) : "정보 없음")
+				.param("direction_amount", raw.directionAmount())
 				.param("reasons", numberedReasons)
 				.param("features", toJson(request))
 				.param("flights", buildFlightSummary(flights)))
