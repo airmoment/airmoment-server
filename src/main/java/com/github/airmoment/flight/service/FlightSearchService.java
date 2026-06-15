@@ -18,6 +18,7 @@ import com.github.airmoment.flight.domain.enums.FlightSortOption;
 import com.github.airmoment.flight.dto.AIPredictionResponse;
 import com.github.airmoment.flight.dto.CachedFlightItem;
 import com.github.airmoment.flight.dto.CachedFlightResult;
+import com.github.airmoment.flight.dto.ExplainDto;
 import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.dto.FlightItemResponse;
 import com.github.airmoment.flight.dto.FlightSearchResponse;
@@ -47,6 +48,7 @@ public class FlightSearchService {
 	private final ObjectMapper objectMapper;
 	private final FlightFeatureService flightFeatureService;
 	private final FlightForecastService flightForecastService;
+	private final FlightExplainService flightExplainService;
 	private final AIServerClient aiServerClient;
 
 	public FlightSearchResponse searchFlights(
@@ -105,7 +107,14 @@ public class FlightSearchService {
 			log.error("가격 예측 그래프 생성 실패: {}", e.getMessage());
 		}
 
-		return FlightSearchResponse.of(predictDto, result, priceForecast);
+		ExplainDto explain = null;
+		try {
+			explain = flightExplainService.explain(departureCode, arrivalCode, departureAt, predictionInput, result);
+		} catch (Exception e) {
+			log.error("AI 예측 설명(explain) 생성 실패: {}", e.getMessage());
+		}
+
+		return FlightSearchResponse.of(predictDto, result, priceForecast, explain);
 	}
 
 	public CachedFlightResult getCachedOrFetchResult(String departureCode, String arrivalCode, LocalDate departureAt) {
