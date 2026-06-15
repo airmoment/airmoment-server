@@ -90,7 +90,7 @@ public class FlightForecastService {
 		Float oilChange7d = computeOilChange7d(oilPriceUsd);
 
 		// 환율 변화율 피처
-		Float arrFxChange7d = computeArrFxChange7d(arrivalCode, departureAt);
+		Float arrFxChange7d = computeArrFxChange7d(arrivalCode, now.toLocalDate());
 
 		ForecastRequest request = new ForecastRequest(
 			fv.routeId(),
