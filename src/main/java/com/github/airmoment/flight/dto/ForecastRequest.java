@@ -1,5 +1,6 @@
 package com.github.airmoment.flight.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
@@ -25,12 +26,12 @@ public record ForecastRequest(
 	Float histRecentStd,
 	Float histRecentSlope,
 	Float currVsHistMean,
-	Integer lag1Price,
-	Integer priceChange1,
-	Float rollingStd3,
-	Integer priceVsRollingMean3,
+	@JsonProperty("lag_1_price") Integer lag1Price,
+	@JsonProperty("price_change_1") Integer priceChange1,
+	@JsonProperty("rolling_std_3") Float rollingStd3,
+	@JsonProperty("price_vs_rolling_mean_3") Integer priceVsRollingMean3,
 	Float oilPriceUsd,
-	Float oilChange7d,
-	Float arrFxChange7d
+	@JsonProperty("oil_change_7d") Float oilChange7d,
+	@JsonProperty("arr_fx_change_7d") Float arrFxChange7d
 ) {
 }

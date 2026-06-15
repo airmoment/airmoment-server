@@ -103,7 +103,7 @@ public class FlightSearchService {
 
 		ExplainDto explain = null;
 		try {
-			explain = flightExplainService.explain(departureCode, arrivalCode, departureAt, predictionInput, result);
+			explain = flightExplainService.explain(departureCode, arrivalCode, departureAt, cached, result);
 		} catch (Exception e) {
 			log.error("AI 예측 설명(explain) 생성 실패: {}", e.getMessage());
 		}
