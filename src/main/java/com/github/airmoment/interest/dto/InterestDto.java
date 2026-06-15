@@ -6,6 +6,7 @@ import com.github.airmoment.flight.domain.enums.AirportCode;
 import com.github.airmoment.interest.domain.Interest;
 
 public record InterestDto(
+	Long interestId,
 	AirportCode departureCode,
 	AirportCode arrivalCode,
 	LocalDate departureAt,
@@ -15,6 +16,7 @@ public record InterestDto(
 ) {
 	public static InterestDto from(Interest interest) {
 		return new InterestDto(
+			interest.getId(),
 			interest.getDepartureCode(),
 			interest.getArrivalCode(),
 			interest.getDepartureAt(),
