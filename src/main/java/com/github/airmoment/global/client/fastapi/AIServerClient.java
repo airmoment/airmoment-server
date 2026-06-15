@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import com.github.airmoment.flight.dto.AIPredictionResponse;
+import com.github.airmoment.flight.dto.ExplainResponse;
 import com.github.airmoment.flight.dto.FlightFeatureVector;
 import com.github.airmoment.flight.dto.ForecastDto;
 import com.github.airmoment.flight.dto.ForecastRequest;
@@ -42,5 +43,15 @@ public class AIServerClient {
 			.body(request)
 			.retrieve()
 			.body(ForecastDto.class);
+	}
+
+	public ExplainResponse explain(ForecastRequest request) {
+		return restClient.post()
+			.uri(aiServerProperties.baseUrl() + "/explain")
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_JSON)
+			.body(request)
+			.retrieve()
+			.body(ExplainResponse.class);
 	}
 }
